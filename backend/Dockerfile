@@ -18,6 +18,7 @@ WORKDIR /root/
 
 COPY --from=builder /app/server .
 
-EXPOSE 8080
+ARG SERVER_PORT=8080
+EXPOSE ${SERVER_PORT}
 
 CMD ["./server"]

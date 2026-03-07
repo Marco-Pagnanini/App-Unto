@@ -4,11 +4,13 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/google/uuid"
 	"github.com/Marco-Pagnanini/App-Unto/backend/internal/domain"
 	"github.com/Marco-Pagnanini/App-Unto/backend/internal/handler"
 	postgresRepo "github.com/Marco-Pagnanini/App-Unto/backend/internal/repository/postgres"
+	"github.com/Marco-Pagnanini/App-Unto/backend/internal/setup"
 	"github.com/Marco-Pagnanini/App-Unto/backend/internal/usecase"
 	"github.com/Marco-Pagnanini/App-Unto/backend/pkg/config"
 	"gorm.io/driver/postgres"
@@ -16,17 +18,26 @@ import (
 )
 
 func main() {
-	// 1. Config
+	// 1. Wizard di setup al primo avvio (saltato se API_KEY è già nell'env → dentro Docker)
+	if setup.IsFirstRun() {
+		if err := setup.Run(); err != nil {
+			log.Fatalf("setup failed: %v", err)
+		}
+		// Il server ora gira dentro Docker — questo processo locale ha finito il suo lavoro
+		os.Exit(0)
+	}
+
+	// 2. Config — legge config.yaml (creato dal wizard) oppure env vars (Docker)
 	cfg, err := config.Load()
 	if err != nil {
 		log.Fatalf("failed to load config: %v", err)
 	}
 
 	if cfg.Server.APIKey == "" {
-		log.Fatal("API_KEY must be set in environment or .env file")
+		log.Fatal("API_KEY non configurata — esegui il server per completare il setup")
 	}
 
-	// 2. Database
+	// 3. Database
 	dsn := fmt.Sprintf(
 		"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
 		cfg.Database.Host,
@@ -42,30 +53,30 @@ func main() {
 		log.Fatalf("failed to connect to database: %v", err)
 	}
 
-	// 3. Auto migrate — crea/aggiorna le tabelle in base alle struct del domain
+	// 4. Auto migrate — crea/aggiorna le tabelle in base alle struct del domain
 	if err := db.AutoMigrate(&domain.User{}, &domain.Tag{}, &domain.Note{}); err != nil {
 		log.Fatalf("failed to run migrations: %v", err)
 	}
 
-	// 4. Repositories
+	// 5. Repositories
 	userRepo := postgresRepo.NewUserRepository(db)
 	noteRepo := postgresRepo.NewNoteRepository(db)
 	tagRepo := postgresRepo.NewTagRepository(db)
 
-	// 5. Seed: crea l'utente admin al primo avvio se non esiste
+	// 6. Seed: crea l'utente admin al primo avvio se non esiste
 	if err := seedDefaultUser(userRepo, cfg.Server.APIKey); err != nil {
 		log.Fatalf("failed to seed default user: %v", err)
 	}
 
-	// 6. Use cases
+	// 7. Use cases
 	noteUseCase := usecase.NewNoteUseCase(noteRepo, tagRepo)
 	tagUseCase := usecase.NewTagUseCase(tagRepo)
 
-	// 7. Handlers
+	// 8. Handlers
 	noteHandler := handler.NewNoteHandler(noteUseCase)
 	tagHandler := handler.NewTagHandler(tagUseCase)
 
-	// 8. Router
+	// 9. Router
 	r := handler.SetupRouter(noteHandler, tagHandler, userRepo)
 
 	log.Printf("server listening on port %s", cfg.Server.Port)

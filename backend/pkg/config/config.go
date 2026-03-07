@@ -1,6 +1,10 @@
 package config
 
-import "github.com/spf13/viper"
+import (
+	"os"
+
+	"github.com/spf13/viper"
+)
 
 type Config struct {
 	Server   ServerConfig
@@ -30,9 +34,15 @@ type RedisConfig struct {
 }
 
 func Load() (*Config, error) {
-	viper.SetConfigFile(".env")
+	// Legge config.yaml (scritto dal wizard al primo avvio)
+	viper.SetConfigName("config")
+	viper.SetConfigType("yaml")
+	viper.AddConfigPath(".")
+
+	// AutomaticEnv assicura che le env var siano sempre disponibili
 	viper.AutomaticEnv()
 
+	// Defaults
 	viper.SetDefault("SERVER_PORT", "8080")
 	viper.SetDefault("DB_HOST", "localhost")
 	viper.SetDefault("DB_PORT", "5432")
@@ -41,26 +51,36 @@ func Load() (*Config, error) {
 	viper.SetDefault("REDIS_PORT", "6379")
 	viper.SetDefault("REDIS_DB", 0)
 
-	_ = viper.ReadInConfig() // ok se non esiste il file, usa env vars
+	_ = viper.ReadInConfig() // non fallisce se il file non esiste
 
 	return &Config{
 		Server: ServerConfig{
-			Port:   viper.GetString("SERVER_PORT"),
-			APIKey: viper.GetString("API_KEY"),
+			Port:   get("SERVER_PORT"),
+			APIKey: get("API_KEY"),
 		},
 		Database: DatabaseConfig{
-			Host:     viper.GetString("DB_HOST"),
-			Port:     viper.GetString("DB_PORT"),
-			User:     viper.GetString("DB_USER"),
-			Password: viper.GetString("DB_PASSWORD"),
-			Name:     viper.GetString("DB_NAME"),
-			SSLMode:  viper.GetString("DB_SSLMODE"),
+			Host:     get("DB_HOST"),
+			Port:     get("DB_PORT"),
+			User:     get("DB_USER"),
+			Password: get("DB_PASSWORD"),
+			Name:     get("DB_NAME"),
+			SSLMode:  get("DB_SSLMODE"),
 		},
 		Redis: RedisConfig{
-			Host:     viper.GetString("REDIS_HOST"),
-			Port:     viper.GetString("REDIS_PORT"),
-			Password: viper.GetString("REDIS_PASSWORD"),
+			Host:     get("REDIS_HOST"),
+			Port:     get("REDIS_PORT"),
+			Password: get("REDIS_PASSWORD"),
 			DB:       viper.GetInt("REDIS_DB"),
 		},
 	}, nil
+}
+
+// get restituisce il valore della env var se impostata, altrimenti quello di viper (config.yaml o default).
+// Questo risolve un gotcha di viper: AutomaticEnv non sovrascrive sempre i valori del file di config.
+// Priorità: env var > config.yaml > default
+func get(key string) string {
+	if v := os.Getenv(key); v != "" {
+		return v
+	}
+	return viper.GetString(key)
 }

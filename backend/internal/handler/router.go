@@ -12,6 +12,7 @@ func SetupRouter(
 	userRepo domain.UserRepository,
 ) *gin.Engine {
 	r := gin.Default()
+	r.SetTrustedProxies(nil) // self-hosted: nessun proxy di fiducia
 
 	// Tutte le route sotto /api/v1 richiedono autenticazione
 	api := r.Group("/api/v1")
