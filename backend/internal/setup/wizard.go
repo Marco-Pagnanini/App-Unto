@@ -5,14 +5,16 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
+	"net"
 	"os"
 	"os/exec"
 	"strings"
+	"time"
 )
 
 const (
-	EnvFile        = ".env"
-	ComposeFile    = "docker-compose.yml"
+	EnvFile     = ".env"
+	ComposeFile = "docker-compose.yml"
 )
 
 // IsFirstRun controlla se il wizard deve girare.
@@ -58,6 +60,7 @@ func Run() error {
 		return fmt.Errorf("docker not available")
 	}
 
+	// Porta del server HTTP
 	port := ask(reader, "Porta del server", "8080")
 
 	// API Key
@@ -74,7 +77,16 @@ func Run() error {
 		fmt.Printf("  → Generata: %s\n", apiKey)
 	}
 
-	// Password DB generata automaticamente (l'utente non ha motivo di cambiarla)
+	// Porta PostgreSQL — rileva automaticamente se 5432 è già occupata
+	defaultDBPort := "5432"
+	if isPortInUse("5432") {
+		defaultDBPort = "5433"
+		fmt.Println()
+		fmt.Println("⚠ Porta 5432 già in uso (PostgreSQL esistente?). Uso 5433 come default.")
+	}
+	dbPort := ask(reader, "Porta PostgreSQL", defaultDBPort)
+
+	// Password DB generata automaticamente
 	dbPassword, err := generateSecret()
 	if err != nil {
 		return fmt.Errorf("generating db password: %w", err)
@@ -91,23 +103,23 @@ func Run() error {
 	}
 
 	// Scrive .env
-	if err := writeEnv(port, apiKey, dbPassword); err != nil {
+	if err := writeEnv(port, apiKey, dbPort, dbPassword); err != nil {
 		return fmt.Errorf("writing .env: %w", err)
 	}
 	fmt.Println("✓ File .env creato")
 
-	// Rimuovi eventuali container e volumi residui (password DB cambiata → incompatibile)
+	// Rimuovi eventuali container e volumi residui
 	fmt.Println("→ Pulizia container e volumi precedenti (se presenti)...")
 	down := exec.Command("docker", "compose", "down", "-v")
 	down.Stdout = os.Stdout
 	down.Stderr = os.Stderr
-	_ = down.Run() // ignora l'errore: se non c'è nulla da rimuovere è OK
+	_ = down.Run()
 
 	// Avvia Docker Compose
 	fmt.Println("→ Avvio dei container Docker (potrebbe richiedere qualche minuto al primo avvio)...")
 	fmt.Println()
 
-	cmd := exec.Command("docker", "compose", "up", "-d", "--build")
+	cmd := exec.Command("docker", "compose", "up", "-d")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
@@ -123,6 +135,16 @@ func Run() error {
 	fmt.Println("Puoi trovarla in qualsiasi momento nel file .env")
 
 	return nil
+}
+
+// isPortInUse verifica se una porta TCP locale è già in uso.
+func isPortInUse(port string) bool {
+	conn, err := net.DialTimeout("tcp", "localhost:"+port, time.Second)
+	if err != nil {
+		return false
+	}
+	conn.Close()
+	return true
 }
 
 func ask(r *bufio.Reader, label, defaultVal string) string {
@@ -168,7 +190,7 @@ func LoadEnv() error {
 	return scanner.Err()
 }
 
-func writeEnv(port, apiKey, dbPassword string) error {
+func writeEnv(port, apiKey, dbPort, dbPassword string) error {
 	content := fmt.Sprintf(`# Notes App - Configurazione
 # Generato automaticamente dal wizard di setup.
 # Riavvia i container dopo ogni modifica: docker compose restart
@@ -177,7 +199,7 @@ SERVER_PORT=%s
 API_KEY=%s
 
 DB_HOST=localhost
-DB_PORT=5432
+DB_PORT=%s
 DB_USER=notes
 DB_PASSWORD=%s
 DB_NAME=notes_db
@@ -187,7 +209,7 @@ REDIS_HOST=localhost
 REDIS_PORT=6379
 REDIS_PASSWORD=
 REDIS_DB=0
-`, port, apiKey, dbPassword)
+`, port, apiKey, dbPort, dbPassword)
 
 	return os.WriteFile(EnvFile, []byte(content), 0600)
 }

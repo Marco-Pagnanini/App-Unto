@@ -1,16 +1,4 @@
 services:
-  api:
-    build: .
-    ports:
-      - "${SERVER_PORT:-8080}:${SERVER_PORT:-8080}"
-    env_file: .env
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    restart: unless-stopped
-
   postgres:
     image: postgres:16-alpine
     ports:
