@@ -85,6 +85,13 @@ func Run() error {
 	}
 	fmt.Println("✓ File .env creato")
 
+	// Rimuovi eventuali container e volumi residui (password DB cambiata → incompatibile)
+	fmt.Println("→ Pulizia container e volumi precedenti (se presenti)...")
+	down := exec.Command("docker", "compose", "down", "-v")
+	down.Stdout = os.Stdout
+	down.Stderr = os.Stderr
+	_ = down.Run() // ignora l'errore: se non c'è nulla da rimuovere è OK
+
 	// Avvia Docker Compose
 	fmt.Println("→ Avvio dei container Docker (potrebbe richiedere qualche minuto al primo avvio)...")
 	fmt.Println()
