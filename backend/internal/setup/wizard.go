@@ -94,13 +94,11 @@ func Run() error {
 
 	fmt.Println()
 
-	// Estrae docker-compose.yml dal binario (se non esiste già)
-	if _, err := os.Stat(ComposeFile); os.IsNotExist(err) {
-		if err := os.WriteFile(ComposeFile, dockerComposeTemplate, 0644); err != nil {
-			return fmt.Errorf("writing docker-compose.yml: %w", err)
-		}
-		fmt.Println("✓ File docker-compose.yml estratto")
+	// Scrive sempre docker-compose.yml dal template embeddato (sovrascrive eventuali versioni vecchie)
+	if err := os.WriteFile(ComposeFile, dockerComposeTemplate, 0644); err != nil {
+		return fmt.Errorf("writing docker-compose.yml: %w", err)
 	}
+	fmt.Println("✓ File docker-compose.yml aggiornato")
 
 	// Scrive .env
 	if err := writeEnv(port, apiKey, dbPort, dbPassword); err != nil {
