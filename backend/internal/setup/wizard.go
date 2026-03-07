@@ -10,7 +10,10 @@ import (
 	"strings"
 )
 
-const EnvFile = ".env"
+const (
+	EnvFile        = ".env"
+	ComposeFile    = "docker-compose.yml"
+)
 
 // IsFirstRun controlla se il wizard deve girare.
 // Viene saltato se API_KEY è già configurata (env var → Docker, oppure .env con valore).
@@ -79,6 +82,14 @@ func Run() error {
 
 	fmt.Println()
 
+	// Estrae docker-compose.yml dal binario (se non esiste già)
+	if _, err := os.Stat(ComposeFile); os.IsNotExist(err) {
+		if err := os.WriteFile(ComposeFile, dockerComposeTemplate, 0644); err != nil {
+			return fmt.Errorf("writing docker-compose.yml: %w", err)
+		}
+		fmt.Println("✓ File docker-compose.yml estratto")
+	}
+
 	// Scrive .env
 	if err := writeEnv(port, apiKey, dbPassword); err != nil {
 		return fmt.Errorf("writing .env: %w", err)
@@ -132,22 +143,47 @@ func generateSecret() (string, error) {
 	return hex.EncodeToString(b), nil
 }
 
+// LoadEnv legge il file .env e imposta ogni variabile nel processo corrente.
+// Va chiamato dopo il wizard, prima di config.Load().
+func LoadEnv() error {
+	f, err := os.Open(EnvFile)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	scanner := bufio.NewScanner(f)
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+		parts := strings.SplitN(line, "=", 2)
+		if len(parts) != 2 {
+			continue
+		}
+		key := strings.TrimSpace(parts[0])
+		val := strings.TrimSpace(parts[1])
+		os.Setenv(key, val)
+	}
+	return scanner.Err()
+}
+
 func writeEnv(port, apiKey, dbPassword string) error {
 	content := fmt.Sprintf(`# Notes App - Configurazione
 # Generato automaticamente dal wizard di setup.
-# Riavvia i container dopo ogni modifica: docker compose up -d
+# Riavvia i container dopo ogni modifica: docker compose restart
 
 SERVER_PORT=%s
 API_KEY=%s
 
-DB_HOST=postgres
+DB_HOST=localhost
 DB_PORT=5432
 DB_USER=notes
 DB_PASSWORD=%s
 DB_NAME=notes_db
 DB_SSLMODE=disable
 
-REDIS_HOST=redis
+REDIS_HOST=localhost
 REDIS_PORT=6379
 REDIS_PASSWORD=
 REDIS_DB=0

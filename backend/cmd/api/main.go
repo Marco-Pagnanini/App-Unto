@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"os"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/Marco-Pagnanini/App-Unto/backend/internal/domain"
@@ -18,26 +18,29 @@ import (
 )
 
 func main() {
-	// 1. Wizard di setup al primo avvio (saltato se API_KEY è già nell'env → dentro Docker)
+	// 1. Wizard al primo avvio (quando API_KEY non è ancora configurata)
 	if setup.IsFirstRun() {
 		if err := setup.Run(); err != nil {
 			log.Fatalf("setup failed: %v", err)
 		}
-		// Il server ora gira dentro Docker — questo processo locale ha finito il suo lavoro
-		os.Exit(0)
 	}
 
-	// 2. Config — legge config.yaml (creato dal wizard) oppure env vars (Docker)
+	// 2. Carica le variabili dal file .env nel processo corrente
+	if err := setup.LoadEnv(); err != nil {
+		log.Fatalf("failed to load .env: %v", err)
+	}
+
+	// 3. Config
 	cfg, err := config.Load()
 	if err != nil {
 		log.Fatalf("failed to load config: %v", err)
 	}
 
 	if cfg.Server.APIKey == "" {
-		log.Fatal("API_KEY non configurata — esegui il server per completare il setup")
+		log.Fatal("API_KEY non configurata — esegui il setup: rm .env && ./notes-server")
 	}
 
-	// 3. Database
+	// 4. Database — retry perché Postgres potrebbe impiegare qualche secondo ad avviarsi
 	dsn := fmt.Sprintf(
 		"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
 		cfg.Database.Host,
@@ -48,35 +51,33 @@ func main() {
 		cfg.Database.SSLMode,
 	)
 
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	db, err := connectWithRetry(dsn, 15)
 	if err != nil {
 		log.Fatalf("failed to connect to database: %v", err)
 	}
 
-	// 4. Auto migrate — crea/aggiorna le tabelle in base alle struct del domain
+	// 5. Auto migrate
 	if err := db.AutoMigrate(&domain.User{}, &domain.Tag{}, &domain.Note{}); err != nil {
 		log.Fatalf("failed to run migrations: %v", err)
 	}
 
-	// 5. Repositories
+	// 6. Repositories
 	userRepo := postgresRepo.NewUserRepository(db)
 	noteRepo := postgresRepo.NewNoteRepository(db)
 	tagRepo := postgresRepo.NewTagRepository(db)
 
-	// 6. Seed: crea l'utente admin al primo avvio se non esiste
+	// 7. Seed: crea l'utente admin al primo avvio
 	if err := seedDefaultUser(userRepo, cfg.Server.APIKey); err != nil {
 		log.Fatalf("failed to seed default user: %v", err)
 	}
 
-	// 7. Use cases
+	// 8. Use cases
 	noteUseCase := usecase.NewNoteUseCase(noteRepo, tagRepo)
 	tagUseCase := usecase.NewTagUseCase(tagRepo)
 
-	// 8. Handlers
+	// 9. Handlers e router
 	noteHandler := handler.NewNoteHandler(noteUseCase)
 	tagHandler := handler.NewTagHandler(tagUseCase)
-
-	// 9. Router
 	r := handler.SetupRouter(noteHandler, tagHandler, userRepo)
 
 	log.Printf("server listening on port %s", cfg.Server.Port)
@@ -85,8 +86,22 @@ func main() {
 	}
 }
 
+// connectWithRetry tenta la connessione al database con backoff lineare.
+func connectWithRetry(dsn string, maxAttempts int) (*gorm.DB, error) {
+	var db *gorm.DB
+	var err error
+	for i := 1; i <= maxAttempts; i++ {
+		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+		if err == nil {
+			return db, nil
+		}
+		log.Printf("database not ready, retry %d/%d...", i, maxAttempts)
+		time.Sleep(time.Duration(i) * time.Second)
+	}
+	return nil, err
+}
+
 // seedDefaultUser crea l'utente "admin" al primo avvio dell'applicazione.
-// Nei successivi avvii non fa nulla se l'utente esiste già.
 func seedDefaultUser(userRepo domain.UserRepository, apiKey string) error {
 	ctx := context.Background()
 
