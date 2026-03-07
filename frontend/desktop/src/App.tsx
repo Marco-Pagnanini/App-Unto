@@ -1,50 +1,95 @@
 import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import { invoke } from "@tauri-apps/api/core";
-import "./App.css";
+import { API } from "./services/api";
+import { Nota } from "./types/types";
+import { NoteForm } from "./components/NoteForm";
+import { NoteCard } from "./components/NoteCard";
+import { NoteDetail } from "./components/NoteDetail";
+import "./styles/global.css"; // Colleghiamo il tuo Design System!
 
 function App() {
-  const [greetMsg, setGreetMsg] = useState("");
-  const [name, setName] = useState("");
+  const [note, setNote] = useState<Nota[]>([]);
+  
+  // Gestiamo 3 stati possibili per l'area di destra: vuota, creazione o visualizzazione
+  const [statoLettura, setStatoLettura] = useState<'vuoto' | 'creazione' | 'visualizzazione'>('vuoto');
+  const [notaAttiva, setNotaAttiva] = useState<Nota | null>(null);
 
-  async function greet() {
-    // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-    setGreetMsg(await invoke("greet", { name }));
-  }
+  const avviaCreazione = () => {
+    setStatoLettura('creazione');
+    setNotaAttiva(null);
+  };
+
+  const apriNota = (nota: Nota) => {
+    setNotaAttiva(nota);
+    setStatoLettura('visualizzazione');
+  };
+
+  const aggiungiNota = async (titolo: string, descrizione: string) => {
+    if (!titolo.trim() || !descrizione.trim()) return;
+    try {
+      const nuovaNota = await API.salvaNota(titolo, descrizione);
+      setNote(prev => [nuovaNota, ...prev]);
+      apriNota(nuovaNota); // Apre la nota appena salvata
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   return (
-    <main className="container">
-      <h1>Welcome to Tauri + React</h1>
-
-      <div className="row">
-        <a href="https://vite.dev" target="_blank">
-          <img src="/vite.svg" className="logo vite" alt="Vite logo" />
-        </a>
-        <a href="https://tauri.app" target="_blank">
-          <img src="/tauri.svg" className="logo tauri" alt="Tauri logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className="app-shell">
+      {/* Barra superiore */}
+      <div className="topbar">
+        <div className="topbar-logo">App-<span>Unto</span></div>
       </div>
-      <p>Click on the Tauri, Vite, and React logos to learn more.</p>
 
-      <form
-        className="row"
-        onSubmit={(e) => {
-          e.preventDefault();
-          greet();
-        }}
-      >
-        <input
-          id="greet-input"
-          onChange={(e) => setName(e.currentTarget.value)}
-          placeholder="Enter a name..."
-        />
-        <button type="submit">Greet</button>
-      </form>
-      <p>{greetMsg}</p>
-    </main>
+      {/* Barra laterale */}
+      <div className="sidebar">
+        <div className="sidebar-section">
+          <div 
+            className={`sidebar-item ${statoLettura === 'creazione' ? 'active' : ''}`} 
+            onClick={avviaCreazione}
+          >
+            + Nuova Nota
+          </div>
+        </div>
+        
+        <div className="sidebar-divider"></div>
+        
+        <div className="sidebar-section" style={{ flex: 1, overflowY: "auto" }}>
+          <div className="sidebar-label">Recenti</div>
+          {note.length === 0 && (
+            <div style={{ padding: "8px 12px", fontSize: "11px", color: "var(--text-tertiary)" }}>Nessuna nota.</div>
+          )}
+          {note.map(n => (
+            <NoteCard 
+              key={n.id} 
+              nota={n} 
+              attiva={notaAttiva?.id === n.id && statoLettura === 'visualizzazione'} 
+              onClick={() => apriNota(n)} 
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Area principale (Editor o Lettura) */}
+      <div className="editor-area">
+        {statoLettura === 'creazione' && (
+          <NoteForm 
+            onSalva={aggiungiNota} 
+            onAnnulla={() => setStatoLettura(note.length > 0 ? 'visualizzazione' : 'vuoto')} 
+          />
+        )}
+        
+        {statoLettura === 'visualizzazione' && notaAttiva && (
+          <NoteDetail nota={notaAttiva} />
+        )}
+        
+        {statoLettura === 'vuoto' && (
+          <div style={{ margin: "auto", fontFamily: "var(--font-display)", color: "var(--text-tertiary)", fontSize: "24px" }}>
+            Seleziona o crea una nota
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
 

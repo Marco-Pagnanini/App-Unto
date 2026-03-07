@@ -1,0 +1,45 @@
+:root {
+  --bg-base: #0f0f0f; --bg-surface: #161616; --bg-elevated: #1c1c1c; 
+  --bg-overlay: #222222; --bg-hover: #2a2a2a; --bg-active: #303030;
+  --border-subtle: #1f1f1f; --border-default: #2c2c2c; --border-strong: #3d3d3d;
+  --text-primary: #f0ede8; --text-secondary: #9a9491; --text-tertiary: #5a5654; 
+  --text-disabled: #3d3b3a; --text-inverse: #0f0f0f;
+  --accent-warm: #c9a96e; --accent-warm-dim: #c9a96e22; --accent-warm-mid: #c9a96e55;
+  --font-display: 'Instrument Serif', Georgia, serif;
+  --font-body: 'Geist', system-ui, sans-serif;
+  --font-mono: 'Geist Mono', 'Fira Code', monospace;
+  --text-xs: 11px; --text-sm: 13px; --text-base: 15px; --text-lg: 20px; --text-2xl: 32px; --text-4xl: 56px;
+  --radius-sm: 4px; --radius-md: 8px; --radius-lg: 12px;
+  --sidebar-width: 260px; --topbar-height: 48px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg-base); color: var(--text-primary); font-family: var(--font-body); font-size: var(--text-base); min-height: 100vh; overflow: hidden; }
+
+/* Layout App Shell */
+.app-shell { display: grid; grid-template-columns: var(--sidebar-width) 1fr; grid-template-rows: var(--topbar-height) 1fr; height: 100vh; }
+.topbar { grid-column: 1 / -1; background: var(--bg-base); border-bottom: 1px solid var(--border-subtle); display: flex; align-items: center; padding: 0 16px; }
+.topbar-logo { font-family: var(--font-display); font-size: var(--text-lg); color: var(--text-primary); }
+.topbar-logo span { color: var(--accent-warm); font-style: normal; }
+.sidebar { background: var(--bg-surface); border-right: 1px solid var(--border-subtle); display: flex; flex-direction: column; overflow-y: auto; }
+.sidebar-section { padding: 12px 8px; }
+.sidebar-label { font-size: var(--text-xs); color: var(--text-tertiary); letter-spacing: 0.08em; text-transform: uppercase; padding: 8px 12px; }
+.sidebar-item { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: var(--radius-md); font-size: var(--text-sm); color: var(--text-secondary); cursor: pointer; transition: 0.2s; }
+.sidebar-item:hover { background: var(--bg-hover); color: var(--text-primary); }
+.sidebar-item.active { background: var(--bg-active); color: var(--accent-warm); }
+.sidebar-divider { height: 1px; background: var(--border-subtle); margin: 8px 12px; }
+
+/* Lista Note */
+.note-item { display: flex; flex-direction: column; padding: 8px 12px; border-radius: var(--radius-md); cursor: pointer; transition: 0.2s; margin-bottom: 4px; }
+.note-item:hover { background: var(--bg-hover); }
+.note-item.active { background: var(--accent-warm-dim); border-left: 2px solid var(--accent-warm); padding-left: 10px; }
+.note-item-title { font-size: var(--text-sm); color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.note-item.active .note-item-title { color: var(--accent-warm); }
+
+/* Editor */
+.editor-area { background: var(--bg-base); display: flex; flex-direction: column; overflow-y: auto; }
+.editor-content { padding: 64px; max-width: 720px; margin: 0 auto; width: 100%; display: flex; flex-direction: column; flex: 1; }
+.note-title-input { font-family: var(--font-display); font-size: var(--text-4xl); color: var(--text-primary); background: transparent; border: none; outline: none; width: 100%; margin-bottom: 32px; }
+.note-title-input::placeholder { color: var(--text-disabled); }
+.paragraph { font-size: var(--text-base); color: var(--text-secondary); line-height: 1.75; }
+.tag-warm { background: var(--accent-warm-dim); color: var(--accent-warm); border: 1px solid var(--accent-warm-mid); padding: 2px 8px; border-radius: 999px; font-size: var(--text-xs); display: inline-block; }
