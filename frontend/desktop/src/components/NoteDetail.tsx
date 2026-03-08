@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from 'react-i18next';
 import { Note } from "../types/types";
+import { TipTapEditor } from "./TipTapEditor";
+
 
 interface Props {
   note: Note;
@@ -68,12 +70,10 @@ export function NoteDetail({ note, onUpdate, onDelete }: Props) {
       <div className="note-meta-row">
         <span className="tag-warm">{t('note.edit_mode')}</span>
       </div>
-      <textarea 
-        className="paragraph note-body"
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
+      <TipTapEditor 
+        content={content}
+        onChange={setContent}
         disabled={isSaving}
-        placeholder={t('note.start_writing')}
       />
       
       {showConfirm ? (

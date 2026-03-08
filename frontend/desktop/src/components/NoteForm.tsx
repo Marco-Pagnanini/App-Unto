@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from 'react-i18next';
+import { TipTapEditor } from "./TipTapEditor";
 
 interface Props {
   onSave: (title: string, content: string) => Promise<void>;
@@ -27,13 +28,13 @@ export function NoteForm({ onSave, onCancel }: Props) {
         onChange={(e) => setTitle(e.target.value)}
         disabled={isSaving}
       />
-      <textarea 
-        className="paragraph note-body"
-        placeholder={t('note.start_writing')} 
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
+      
+      <TipTapEditor 
+        content={content}
+        onChange={setContent}
         disabled={isSaving}
       />
+
       <div className="form-actions">
         <button className="btn btn-secondary" onClick={onCancel} disabled={isSaving}>
           {t('form.cancel')}

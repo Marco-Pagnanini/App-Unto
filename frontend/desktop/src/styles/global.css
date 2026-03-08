@@ -115,3 +115,91 @@ body { background: var(--bg-base); color: var(--text-primary); font-family: var(
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+/* --- TipTap Editor Styles --- */
+.ProseMirror {
+  outline: none;
+  min-height: 300px; /* Mantiene l'altezza della vecchia textarea */
+}
+
+/* Fix per i margini dei paragrafi dentro TipTap */
+.ProseMirror p {
+  margin-bottom: 1em;
+}
+
+/* --- Editor Toolbar --- */
+.toolbar-btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  font-size: 13px;
+  font-family: var(--font-body);
+  transition: background 0.2s, color 0.2s;
+}
+
+.toolbar-btn:hover:not(:disabled) {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.toolbar-btn.active {
+  background: var(--bg-active);
+  color: var(--accent-warm);
+}
+
+.toolbar-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.toolbar-sep {
+  width: 1px;
+  height: 18px;
+  background: var(--border-default);
+  margin: 0 4px;
+}
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--bg-active); border-radius: 3px; }
+
+/* TipTap */
+ul[data-type="taskList"] {
+  list-style: none;
+  padding: 0;
+}
+
+ul[data-type="taskList"] p {
+  margin: 0;
+}
+
+ul[data-type="taskList"] li {
+  display: flex;
+}
+
+ul[data-type="taskList"] li > label {
+  flex: 0 0 auto;
+  margin-right: 0.5rem;
+  user-select: none;
+}
+
+ul[data-type="taskList"] li > div {
+  flex: 1 1 auto;
+}
+
+/* Checkbox */
+ul[data-type="taskList"] li input[type="checkbox"] {
+  accent-color: var(--accent-warm);
+  color-scheme: dark;
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+  margin-top: 3px;
+}
