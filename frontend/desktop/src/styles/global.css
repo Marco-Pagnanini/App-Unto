@@ -43,3 +43,75 @@ body { background: var(--bg-base); color: var(--text-primary); font-family: var(
 .note-title-input::placeholder { color: var(--text-disabled); }
 .paragraph { font-size: var(--text-base); color: var(--text-secondary); line-height: 1.75; }
 .tag-warm { background: var(--accent-warm-dim); color: var(--accent-warm); border: 1px solid var(--accent-warm-mid); padding: 2px 8px; border-radius: 999px; font-size: var(--text-xs); display: inline-block; }
+
+/* --- Componenti e Utility Aggiuntive --- */
+
+/* Riga che separa il titolo dal corpo della nota */
+.note-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 32px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+/* Corpo testuale della nota - preserva gli a capo inseriti dall'utente */
+.note-body {
+  white-space: pre-wrap;
+  flex: 1;
+  min-height: 300px;
+  background: transparent;
+  border: none;
+  outline: none;
+  resize: none;
+}
+
+/* Contenitore per i pulsanti (es. form) */
+.form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+/* Pulsanti Base */
+.btn {
+  padding: 8px 16px;
+  cursor: pointer;
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background: var(--accent-warm);
+  color: #000;
+  border: none;
+  font-weight: bold;
+}
+
+.btn-primary:hover {
+  background: #d8b87d; /* Leggermente più chiaro al passaggio del mouse */
+}
+
+.btn-secondary {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  border: 1px solid var(--border-default);
+}
+
+.btn-secondary:hover {
+  background: var(--bg-hover);
+}
+
+/* Metadati sotto il titolo della nota nella sidebar */
+.note-item-meta {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+  margin-top: 2px;
+  font-family: var(--font-mono);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

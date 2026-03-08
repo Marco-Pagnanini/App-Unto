@@ -8,10 +8,14 @@ export function NoteDetail({ nota }: Props) {
   return (
     <div className="editor-content">
       <div className="note-title-input">{nota.titolo}</div>
-      <div style={{ marginBottom: "32px", borderBottom: "1px solid var(--border-subtle)", paddingBottom: "24px" }}>
+      
+      {/* Abbiamo sostituito gli stili inline con note-meta-row */}
+      <div className="note-meta-row">
         <span className="tag-warm">Salvata in locale</span>
       </div>
-      <div className="paragraph" style={{ whiteSpace: "pre-wrap" }}>
+      
+      {/* Aggiunta la classe note-body per gestire i ritorni a capo */}
+      <div className="paragraph note-body">
         {nota.descrizione}
       </div>
     </div>
