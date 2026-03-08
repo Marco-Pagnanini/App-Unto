@@ -60,6 +60,11 @@ export default function RootLayout() {
             <Stack.Screen name="index" options={{ headerShown: false }} />
             <Stack.Screen name="page/editor" options={{ headerShown: false, presentation: "modal" }} />
             <Stack.Screen name="page/visualization-note" options={{ headerShown: false, presentation: "modal" }} />
+            <Stack.Screen name="page/ip" options={{
+                headerShown: false, presentation: "formSheet",
+                sheetAllowedDetents: [0.25, 0.5, 1],
+                sheetInitialDetentIndex: 1,
+            }} />
         </Stack>
     );
 }
