@@ -1,0 +1,31 @@
+{
+  "app": {
+    "syncing": "Sincronizzazione in corso...",
+    "select_note": "Seleziona o crea una nota",
+    "error_saving": "Si è verificato un errore durante il salvataggio."
+  },
+  "sidebar": {
+    "new_note": "+ Nuova Nota",
+    "recent": "Recenti",
+    "no_notes": "Nessuna nota."
+  },
+  "note": {
+    "today": "oggi",
+    "untitled": "Titolo senza nome...",
+    "edit_mode": "Modalità Modifica",
+    "start_writing": "Inizia a scrivere qui..."
+  },
+  "form": {
+    "title_placeholder": "Titolo della nota...",
+    "cancel": "Annulla",
+    "saving": "Salvataggio...",
+    "save_note": "Salva Nota",
+    "save_changes": "Salva Modifiche",
+    "delete": "Elimina",
+    "delete_confirm_msg": "Eliminare definitivamente?",
+    "deleting": "Eliminazione...",
+    "yes_delete": "Sì, Elimina",
+    "error_update": "Impossibile salvare le modifiche. Il server non risponde.",
+    "error_delete": "Impossibile eliminare la nota. Riprova più tardi."
+  }
+}

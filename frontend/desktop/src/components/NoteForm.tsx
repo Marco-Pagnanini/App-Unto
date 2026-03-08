@@ -1,56 +1,50 @@
 import { useState } from "react";
+import { useTranslation } from 'react-i18next';
 
 interface Props {
-  // onSalva ora restituisce una Promise, così il form sa quando ha finito!
-  onSalva: (titolo: string, descrizione: string) => Promise<void>; 
-  onAnnulla: () => void;
+  onSave: (title: string, content: string) => Promise<void>;
+  onCancel: () => void;
 }
 
-export function NoteForm({ onSalva, onAnnulla }: Props) {
-  const [titolo, setTitolo] = useState("");
-  const [descrizione, setDescrizione] = useState("");
-  // Stato per disabilitare il bottone durante il salvataggio
-  const [salvataggioInCorso, setSalvataggioInCorso] = useState(false);
+export function NoteForm({ onSave, onCancel }: Props) {
+  const { t } = useTranslation();
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
-  const gestisciSalvataggio = async () => {
-    setSalvataggioInCorso(true);
-    await onSalva(titolo, descrizione);
-    setSalvataggioInCorso(false);
+  const handleSave = async () => {
+    setIsSaving(true);
+    await onSave(title, content);
+    setIsSaving(false);
   };
 
   return (
     <div className="editor-content">
       <input 
         className="note-title-input"
-        placeholder="Titolo della nota..." 
-        value={titolo}
-        onChange={(e) => setTitolo(e.target.value)}
-        disabled={salvataggioInCorso} // Blocca l'input se sta salvando
+        placeholder={t('form.title_placeholder')} 
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        disabled={isSaving}
       />
-      
       <textarea 
         className="paragraph note-body"
-        placeholder="Inizia a scrivere qui..." 
-        value={descrizione}
-        onChange={(e) => setDescrizione(e.target.value)}
-        disabled={salvataggioInCorso}
+        placeholder={t('note.start_writing')} 
+        value={content}
+        onChange={(e) => setContent(e.target.value)}
+        disabled={isSaving}
       />
-      
       <div className="form-actions">
-        <button 
-          className="btn btn-secondary" 
-          onClick={onAnnulla}
-          disabled={salvataggioInCorso}
-        >
-          Annulla
+        <button className="btn btn-secondary" onClick={onCancel} disabled={isSaving}>
+          {t('form.cancel')}
         </button>
         <button 
           className="btn btn-primary" 
-          onClick={gestisciSalvataggio}
-          disabled={salvataggioInCorso}
-          style={{ opacity: salvataggioInCorso ? 0.5 : 1, cursor: salvataggioInCorso ? 'wait' : 'pointer' }}
+          onClick={handleSave}
+          disabled={isSaving}
+          style={{ opacity: isSaving ? 0.5 : 1, cursor: isSaving ? 'wait' : 'pointer' }}
         >
-          {salvataggioInCorso ? "Salvataggio..." : "Salva Nota"}
+          {isSaving ? t('form.saving') : t('form.save_note')}
         </button>
       </div>
     </div>

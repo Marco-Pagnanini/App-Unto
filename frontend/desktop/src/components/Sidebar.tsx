@@ -1,42 +1,46 @@
-import { Nota } from "../types/types";
+import { useTranslation } from 'react-i18next';
+import { Note } from "../types/types";
 import { NoteCard } from "./NoteCard";
 
-// Definiamo quali dati la Sidebar si aspetta di ricevere da App.tsx
 interface Props {
-  note: Nota[];
-  statoLettura: 'vuoto' | 'creazione' | 'visualizzazione';
-  notaAttiva: Nota | null;
-  onNuovaNota: () => void;
-  onApriNota: (nota: Nota) => void;
+  notes: Note[];
+  viewState: 'empty' | 'creating' | 'viewing';
+  activeNote: Note | null;
+  onCreateNote: () => void;
+  onOpenNote: (note: Note) => void;
 }
 
-export function Sidebar({ note, statoLettura, notaAttiva, onNuovaNota, onApriNota }: Props) {
+export function Sidebar({ notes, viewState, activeNote, onCreateNote, onOpenNote }: Props) {
+  const { t } = useTranslation();
+
   return (
     <div className="sidebar">
       <div className="sidebar-section">
         <div 
-          className={`sidebar-item ${statoLettura === 'creazione' ? 'active' : ''}`} 
-          onClick={onNuovaNota}
+          className={`sidebar-item ${viewState === 'creating' ? 'active' : ''}`} 
+          onClick={onCreateNote}
         >
-          + Nuova Nota
+          {t('sidebar.new_note')}
         </div>
       </div>
       
       <div className="sidebar-divider"></div>
       
       <div className="sidebar-section" style={{ flex: 1, overflowY: "auto" }}>
-        <div className="sidebar-label">Recenti</div>
+        <div className="sidebar-label">{t('sidebar.recent')}</div>
         
-        {note.length === 0 && (
-          <div style={{ padding: "8px 12px", fontSize: "11px", color: "var(--text-tertiary)" }}>Nessuna nota.</div>
+        {notes.length === 0 && (
+          <div style={{ padding: "8px 12px", fontSize: "11px", color: "var(--text-tertiary)" }}>
+            {t('sidebar.no_notes')}
+          </div>
         )}
         
-        {note.map(n => (
+        {notes.map(n => (
           <NoteCard 
             key={n.id} 
-            nota={n} 
-            attiva={notaAttiva?.id === n.id && statoLettura === 'visualizzazione'} 
-            onClick={() => onApriNota(n)} 
+            note={n} 
+            isActive={activeNote?.id === n.id && viewState === 'viewing'} 
+            onClick={() => onOpenNote(n)} 
           />
         ))}
       </div>

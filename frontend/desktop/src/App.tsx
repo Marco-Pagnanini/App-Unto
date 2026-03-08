@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react"; // <-- Aggiunto useEffect
+import { useState, useEffect } from "react";
+import { useTranslation } from 'react-i18next';
 import { API } from "./services/api";
-import { Nota } from "./types/types";
+import { Note } from "./types/types";
 import { Topbar } from "./components/Topbar";
 import { Sidebar } from "./components/Sidebar";
 import { NoteForm } from "./components/NoteForm";
@@ -8,57 +9,78 @@ import { NoteDetail } from "./components/NoteDetail";
 import "./styles/global.css";
 
 function App() {
-  const [note, setNote] = useState<Nota[]>([]);
-  const [statoLettura, setStatoLettura] = useState<'vuoto' | 'creazione' | 'visualizzazione'>('vuoto');
-  const [notaAttiva, setNotaAttiva] = useState<Nota | null>(null);
-  
-  const [inCaricamento, setInCaricamento] = useState(true);
+  const { t } = useTranslation();
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [viewState, setViewState] = useState<'empty' | 'creating' | 'viewing'>('empty');
+  const [activeNote, setActiveNote] = useState<Note | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // useEffect con array vuoto [] alla fine significa: "Esegui questo codice SOLO UNA VOLTA all'avvio dell'app"
   useEffect(() => {
-    const fetchNote = async () => {
+    const fetchNotes = async () => {
       try {
-        setInCaricamento(true);
-        const dati = await API.caricaNote();
-        setNote(dati);
-      } catch (errore) {
-        console.error("Errore nel caricamento delle note:", errore);
-        // Qui in futuro potremmo mostrare un banner di errore all'utente
+        setIsLoading(true);
+        const data = await API.getNotes();
+        setNotes(data);
+      } catch (error) {
+        console.error("Error loading notes:", error);
       } finally {
-        setInCaricamento(false); // Il caricamento è finito, sia con successo che con errore
+        setIsLoading(false);
       }
     };
+    fetchNotes();
+  }, []);
 
-    fetchNote();
-  }, []); // <-- Questo array vuoto è fondamentale!
-
-  const avviaCreazione = () => {
-    setStatoLettura('creazione');
-    setNotaAttiva(null);
+  const startCreating = () => {
+    setViewState('creating');
+    setActiveNote(null);
   };
 
-  const apriNota = (nota: Nota) => {
-    setNotaAttiva(nota);
-    setStatoLettura('visualizzazione');
+  const openNote = (note: Note) => {
+    setActiveNote(note);
+    setViewState('viewing');
   };
 
-  const aggiungiNota = async (titolo: string, descrizione: string) => {
-    if (!titolo.trim() || !descrizione.trim()) return;
+  const addNote = async (title: string, content: string) => {
+    if (!title.trim() || !content.trim()) return;
     try {
-      const nuovaNota = await API.salvaNota(titolo, descrizione);
-      setNote(prev => [nuovaNota, ...prev]);
-      apriNota(nuovaNota); 
+      const newNote = await API.createNote(title, content);
+      setNotes(prev => [newNote, ...prev]);
+      openNote(newNote); 
     } catch (e) {
-      console.error("Errore salvataggio nota:", e);
-      alert("Si è verificato un errore durante il salvataggio della nota."); // Feedback base per l'utente
+      console.error("Error saving note:", e);
+      alert(t('app.error_saving'));
     }
   };
 
-  if (inCaricamento) {
+  const updateNote = async (id: string, title: string, content: string) => {
+    if (!title.trim() || !content.trim()) return;
+    try {
+      const updatedNote = await API.updateNote(id, title, content);
+      setNotes(prev => prev.map(n => n.id === id ? updatedNote : n));
+      setActiveNote(updatedNote);
+    } catch (e) {
+      console.error("Error updating note:", e);
+      throw e; 
+    }
+  };
+
+  const deleteNote = async (id: string) => {
+    try {
+      await API.deleteNote(id);
+      setNotes(prev => prev.filter(n => n.id !== id));
+      setActiveNote(null);
+      setViewState('empty');
+    } catch (e) {
+      console.error("Error deleting note:", e);
+      throw e; 
+    }
+  };
+
+  if (isLoading) {
     return (
       <div className="app-shell" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ fontFamily: "var(--font-display)", color: "var(--text-tertiary)", fontSize: "24px" }}>
-          Sincronizzazione in corso...
+          {t('app.syncing')}
         </div>
       </div>
     );
@@ -68,27 +90,29 @@ function App() {
     <div className="app-shell">
       <Topbar />
       <Sidebar 
-        note={note}
-        statoLettura={statoLettura}
-        notaAttiva={notaAttiva}
-        onNuovaNota={avviaCreazione}
-        onApriNota={apriNota}
+        notes={notes}
+        viewState={viewState}
+        activeNote={activeNote}
+        onCreateNote={startCreating}
+        onOpenNote={openNote}
       />
       <div className="editor-area">
-        {statoLettura === 'creazione' && (
+        {viewState === 'creating' && (
           <NoteForm 
-            onSalva={aggiungiNota} 
-            onAnnulla={() => setStatoLettura(note.length > 0 ? 'visualizzazione' : 'vuoto')} 
+            onSave={addNote} 
+            onCancel={() => setViewState(notes.length > 0 ? 'viewing' : 'empty')} 
           />
         )}
-        
-        {statoLettura === 'visualizzazione' && notaAttiva && (
-          <NoteDetail nota={notaAttiva} />
+        {viewState === 'viewing' && activeNote && (
+          <NoteDetail 
+            note={activeNote} 
+            onUpdate={updateNote}
+            onDelete={deleteNote}
+          />
         )}
-        
-        {statoLettura === 'vuoto' && (
+        {viewState === 'empty' && (
           <div style={{ margin: "auto", fontFamily: "var(--font-display)", color: "var(--text-tertiary)", fontSize: "24px" }}>
-            Seleziona o crea una nota
+            {t('app.select_note')}
           </div>
         )}
       </div>

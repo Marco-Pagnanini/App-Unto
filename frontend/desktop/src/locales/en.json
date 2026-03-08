@@ -1,0 +1,31 @@
+{
+  "app": {
+    "syncing": "Syncing...",
+    "select_note": "Select or create a note",
+    "error_saving": "An error occurred while saving."
+  },
+  "sidebar": {
+    "new_note": "+ New Note",
+    "recent": "Recent",
+    "no_notes": "No notes."
+  },
+  "note": {
+    "today": "today",
+    "untitled": "Untitled note...",
+    "edit_mode": "Edit Mode",
+    "start_writing": "Start writing here..."
+  },
+  "form": {
+    "title_placeholder": "Note title...",
+    "cancel": "Cancel",
+    "saving": "Saving...",
+    "save_note": "Save Note",
+    "save_changes": "Save Changes",
+    "delete": "Delete",
+    "delete_confirm_msg": "Delete permanently?",
+    "deleting": "Deleting...",
+    "yes_delete": "Yes, Delete",
+    "error_update": "Unable to save changes. The server is not responding.",
+    "error_delete": "Unable to delete the note. Please try again later."
+  }
+}

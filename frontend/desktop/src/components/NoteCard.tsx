@@ -1,27 +1,25 @@
-import { Nota } from "../types/types";
+import { useTranslation } from 'react-i18next';
+import { Note } from "../types/types";
 
 interface Props {
-  nota: Nota;
-  attiva: boolean;
+  note: Note;
+  isActive: boolean;
   onClick: () => void;
 }
 
-export function NoteCard({ nota, attiva, onClick }: Props) {
-  // Prepariamo il testo dei metadati. 
-  // Se non c'è una data dal DB, per ora mettiamo "oggi"
-  const dataTesto = nota.dataAggiornamento ? nota.dataAggiornamento : "oggi";
+export function NoteCard({ note, isActive, onClick }: Props) {
+  const { t } = useTranslation();
   
-  // Se ci sono tag, li uniamo con una virgola. Es: " · Go, React"
-  const tagsTesto = nota.tags && nota.tags.length > 0 
-    ? ` · ${nota.tags.join(', ')}` 
+  const dateText = note.updatedAt ? note.updatedAt : t('note.today');
+  const tagsText = note.tags && note.tags.length > 0 
+    ? ` · ${note.tags.join(', ')}` 
     : "";
 
   return (
-    <div className={`note-item ${attiva ? 'active' : ''}`} onClick={onClick}>
-      <div className="note-item-title">{nota.titolo}</div>
-      {/* Aggiungiamo la riga dei metadati */}
+    <div className={`note-item ${isActive ? 'active' : ''}`} onClick={onClick}>
+      <div className="note-item-title">{note.title}</div>
       <div className="note-item-meta">
-        {dataTesto}{tagsTesto}
+        {dateText}{tagsText}
       </div>
     </div>
   );
