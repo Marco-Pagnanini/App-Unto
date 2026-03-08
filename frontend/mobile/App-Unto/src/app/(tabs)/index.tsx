@@ -1,3 +1,4 @@
+import { api } from '@/api/api';
 import { NoteCard } from '@/components/ui';
 import { colors, fontFamily, radius, spacing } from '@/theme';
 import { Note } from '@/types/note';
@@ -11,15 +12,8 @@ const index = () => {
 
     const fetchNotes = async () => {
         try {
-            const response = await fetch('http://89.167.41.90:8082/api/v1/notes', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer 1fe7d5ec6b4b9ed46c015e8a09a1c85cfe4b075e96d4e705871683fbf20ecd34'
-                }
-            });
-            const data = await response.json();
-            setNotes(data);
+            const response = await api.get<Note[]>('/notes');
+            setNotes(response);
         } catch (error) {
             console.error('Error fetching notes:', error);
         }
@@ -27,11 +21,12 @@ const index = () => {
 
     useEffect(() => { fetchNotes(); }, []);
 
+
     return (
         <SafeAreaView style={styles.container}>
             {/* Header */}
             <View style={styles.header}>
-                <Text style={styles.title}>Note</Text>
+                <Text style={styles.title}>Home</Text>
                 <Pressable
                     style={({ pressed }) => [styles.addBtn, pressed && styles.addBtnPressed]}
                     onPress={() => router.push('/page/editor')}
@@ -42,6 +37,8 @@ const index = () => {
 
             {/* Lista note */}
             <FlatList
+                onRefresh={fetchNotes}
+                refreshing={false}
                 data={notes}
                 keyExtractor={(item) => item.id}
                 contentContainerStyle={styles.list}

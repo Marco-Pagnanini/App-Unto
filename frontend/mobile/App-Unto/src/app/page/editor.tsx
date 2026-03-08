@@ -1,9 +1,7 @@
+import api from '@/api/api';
 import { colors, fontFamily, fontSize, lineHeight, radius, spacing } from '@/theme';
 import { useRouter } from 'expo-router';
 import React, { useCallback, useRef, useState } from 'react';
-
-const API_BASE = 'http://89.167.41.90:8082/api/v1';
-const AUTH = 'Bearer 1fe7d5ec6b4b9ed46c015e8a09a1c85cfe4b075e96d4e705871683fbf20ecd34';
 import {
     KeyboardAvoidingView,
     Platform,
@@ -16,17 +14,19 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+
+
 // ─── Azioni toolbar ───────────────────────────────────────────────────────────
 const TOOLBAR = [
-    { label: 'B',  symbol: '𝐁', prefix: '**', suffix: '**', wrap: true  },
-    { label: 'I',  symbol: '𝐼', prefix: '_',  suffix: '_',  wrap: true  },
-    { label: 'H1', symbol: 'H1', prefix: '# ',  suffix: '',   wrap: false },
-    { label: 'H2', symbol: 'H2', prefix: '## ', suffix: '',   wrap: false },
-    { label: '`',  symbol: '`',  prefix: '`',  suffix: '`',  wrap: true  },
-    { label: '"',  symbol: '❝',  prefix: '\n> ', suffix: '',  wrap: false },
-    { label: '•',  symbol: '•',  prefix: '\n- ', suffix: '',  wrap: false },
-    { label: '[]', symbol: '☐',  prefix: '\n- [ ] ', suffix: '', wrap: false },
-    { label: '---',symbol: '—',  prefix: '\n---\n', suffix: '', wrap: false },
+    { label: 'B', symbol: '𝐁', prefix: '**', suffix: '**', wrap: true },
+    { label: 'I', symbol: '𝐼', prefix: '_', suffix: '_', wrap: true },
+    { label: 'H1', symbol: 'H1', prefix: '# ', suffix: '', wrap: false },
+    { label: 'H2', symbol: 'H2', prefix: '## ', suffix: '', wrap: false },
+    { label: '`', symbol: '`', prefix: '`', suffix: '`', wrap: true },
+    { label: '"', symbol: '❝', prefix: '\n> ', suffix: '', wrap: false },
+    { label: '•', symbol: '•', prefix: '\n- ', suffix: '', wrap: false },
+    { label: '[]', symbol: '☐', prefix: '\n- [ ] ', suffix: '', wrap: false },
+    { label: '---', symbol: '—', prefix: '\n---\n', suffix: '', wrap: false },
 ] as const;
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -35,17 +35,17 @@ export default function EditorScreen() {
     const router = useRouter();
     const contentRef = useRef<TextInput>(null);
 
-    const [title,     setTitle]     = useState('');
-    const [content,   setContent]   = useState('');
+    const [title, setTitle] = useState('');
+    const [content, setContent] = useState('');
     const [selection, setSelection] = useState({ start: 0, end: 0 });
 
     // Inserisce o wrappa la sintassi markdown alla posizione del cursore
     const insertFormat = useCallback(
         (prefix: string, suffix: string, wrap: boolean) => {
             const { start, end } = selection;
-            const before   = content.slice(0, start);
+            const before = content.slice(0, start);
             const selected = content.slice(start, end);
-            const after    = content.slice(end);
+            const after = content.slice(end);
 
             let newContent: string;
 
@@ -66,11 +66,7 @@ export default function EditorScreen() {
     const handleSave = async () => {
         if (!title.trim()) return;
         try {
-            await fetch(`${API_BASE}/notes`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', Authorization: AUTH },
-                body: JSON.stringify({ title, content }),
-            });
+            await api.post('/notes', { title, content });
             router.back();
         } catch (e) {
             console.error('Errore creazione nota:', e);

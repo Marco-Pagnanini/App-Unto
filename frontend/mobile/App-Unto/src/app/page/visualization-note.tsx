@@ -1,5 +1,8 @@
+import api from '@/api/api';
+import { MarkdownView } from '@/components/ui';
 import { colors, fontFamily, fontSize, lineHeight, radius, spacing } from '@/theme';
 import { Note } from '@/types/note';
+import { AxiosResponse } from 'axios';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
@@ -13,21 +16,18 @@ import {
     TextInput,
     View,
 } from 'react-native';
-import { MarkdownView } from '@/components/ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const API_BASE = 'http://89.167.41.90:8082/api/v1';
-const AUTH = 'Bearer 1fe7d5ec6b4b9ed46c015e8a09a1c85cfe4b075e96d4e705871683fbf20ecd34';
 
 const TOOLBAR = [
-    { label: 'B',  prefix: '**',      suffix: '**', wrap: true  },
-    { label: '𝐼',  prefix: '_',       suffix: '_',  wrap: true  },
-    { label: 'H1', prefix: '# ',      suffix: '',   wrap: false },
-    { label: 'H2', prefix: '## ',     suffix: '',   wrap: false },
-    { label: '`',  prefix: '`',       suffix: '`',  wrap: true  },
-    { label: '❝',  prefix: '\n> ',    suffix: '',   wrap: false },
-    { label: '•',  prefix: '\n- ',    suffix: '',   wrap: false },
-    { label: '☐',  prefix: '\n- [ ] ',suffix: '',   wrap: false },
+    { label: 'B', prefix: '**', suffix: '**', wrap: true },
+    { label: '𝐼', prefix: '_', suffix: '_', wrap: true },
+    { label: 'H1', prefix: '# ', suffix: '', wrap: false },
+    { label: 'H2', prefix: '## ', suffix: '', wrap: false },
+    { label: '`', prefix: '`', suffix: '`', wrap: true },
+    { label: '❝', prefix: '\n> ', suffix: '', wrap: false },
+    { label: '•', prefix: '\n- ', suffix: '', wrap: false },
+    { label: '☐', prefix: '\n- [ ] ', suffix: '', wrap: false },
 ] as const;
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -38,24 +38,22 @@ export default function VisualizationNote() {
 
     const contentRef = useRef<TextInput>(null);
 
-    const [note,      setNote]      = useState<Note | null>(null);
-    const [title,     setTitle]     = useState('');
-    const [content,   setContent]   = useState('');
+    const [note, setNote] = useState<Note | null>(null);
+    const [title, setTitle] = useState('');
+    const [content, setContent] = useState('');
     const [selection, setSelection] = useState({ start: 0, end: 0 });
-    const [loading,   setLoading]   = useState(true);
-    const [saving,    setSaving]    = useState(false);
-    const [dirty,     setDirty]     = useState(false);
-    const [editMode,  setEditMode]  = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
+    const [dirty, setDirty] = useState(false);
+    const [editMode, setEditMode] = useState(false);
 
     // ── Fetch nota ────────────────────────────────────────────────────────────
     useEffect(() => {
         if (!id) return;
         (async () => {
             try {
-                const res = await fetch(`${API_BASE}/notes/${id}`, {
-                    headers: { 'Content-Type': 'application/json', Authorization: AUTH },
-                });
-                const data: Note = await res.json();
+                const res: AxiosResponse<Note> = await api.get<Note>(`/notes/${id}`);
+                const data: Note = res.data;
                 setNote(data);
                 setTitle(data.title);
                 setContent(data.content);
@@ -78,11 +76,7 @@ export default function VisualizationNote() {
         if (!id || !dirty) return;
         setSaving(true);
         try {
-            await fetch(`${API_BASE}/notes/${id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json', Authorization: AUTH },
-                body: JSON.stringify({ title, content }),
-            });
+            const res: AxiosResponse<Note> = await api.put(`/notes/${id}`, { title, content });
             setNote((prev) => prev ? { ...prev, title, content } : prev);
             setDirty(false);
             setEditMode(false);
@@ -97,9 +91,9 @@ export default function VisualizationNote() {
     const insertFormat = useCallback(
         (prefix: string, suffix: string, wrap: boolean) => {
             const { start, end } = selection;
-            const before   = content.slice(0, start);
+            const before = content.slice(0, start);
             const selected = content.slice(start, end);
-            const after    = content.slice(end);
+            const after = content.slice(end);
 
             let newContent: string;
             if (wrap && selected.length > 0) {
