@@ -25,7 +25,7 @@ const SLIDES = [
         icon: "✦",
         iconColor: colors.accentWarm,
         title: "Pensieri,\nnon cartelle",
-        body: "Folio organizza le tue note attorno alle idee, non alle gerarchie. Scrivi liberamente, il resto viene da sé.",
+        body: "App-Unto organizza le tue note attorno alle idee, non alle gerarchie. Scrivi liberamente, il resto viene da sé.",
         accentLine: colors.accentWarm,
     },
     {
@@ -195,7 +195,7 @@ export default function Index() {
                     App-Unto<Text style={styles.logoDot}>.</Text>
                 </Text>
                 {/* "salta" porta direttamente al modal */}
-                <Pressable onPress={() => router.push("/ip")} style={styles.skipBtn}>
+                <Pressable onPress={() => router.push("/page/ip")} style={styles.skipBtn}>
                     <Text style={styles.skipText}>salta</Text>
                 </Pressable>
             </View>
