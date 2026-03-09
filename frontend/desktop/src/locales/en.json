@@ -2,7 +2,13 @@
   "app": {
     "syncing": "Syncing...",
     "select_note": "Select or create a note",
-    "error_saving": "An error occurred while saving."
+    "error_saving": "An error occurred while saving.",
+    "logout_btn": "Log out",
+    "error_api_format": "The API did not return a valid array of notes:",
+    "error_loading": "Error loading notes:",
+    "error_saving_log": "Error saving note:",
+    "error_updating": "Error updating note:",
+    "error_deleting": "Error deleting note:"
   },
   "sidebar": {
     "new_note": "+ New Note",
@@ -27,5 +33,41 @@
     "yes_delete": "Yes, Delete",
     "error_update": "Unable to save changes. The server is not responding.",
     "error_delete": "Unable to delete the note. Please try again later."
+  },
+  "login": {
+    "title_1": "Thoughts, not folders",
+    "body_1": "App-Unto organizes your notes around ideas, not hierarchies. Write freely, the rest follows.",
+    "title_2": "Ideas find each other",
+    "body_2": "Every note can be linked to another. Build a knowledge network that grows with you.",
+    "title_3": "Tasks, blocks and structure",
+    "body_3": "Checklists, code, quotes. Every content type has its block, every block has its place.",
+    "title_4": "Your private space",
+    "body_4": "Self-hosted, offline-first, yours. No mandatory cloud, no subscriptions. Just your notes.",
+    "server_url": "Server URL",
+    "server_url_placeholder": "e.g. 192.168.1.10:8080",
+    "api_token": "API Token",
+    "api_token_placeholder": "Enter your secret API Key",
+    "connect_btn": "Connect to Server",
+    "connecting": "Connecting...",
+    "error_401": "Invalid Token or No Permission (Error 403).",
+    "error_404": "URL not found (Error 404). Check the server address.",
+    "error_server": "Server error: ",
+    "error_network": "Server not is answering. Check the URL and make sure backend is on.",
+    "error_generic": "Unexpected connection error occurred.",
+    "error_console": "Connection error intercepted:"
+  },
+  "editor": {
+    "bold": "Bold (**text**)",
+    "italic": "Italic (*text*)",
+    "strike": "Strikethrough (~~text~~)",
+    "h1": "Heading 1 (# )",
+    "h2": "Heading 2 (## )",
+    "h3": "Heading 3 (### )",
+    "bullet_list": "Bullet List (- )",
+    "ordered_list": "Ordered List (1. )",
+    "blockquote": "Quote / Note (> )",
+    "code": "Code (`text`)",
+    "code_block": "Code Block (```)",
+    "todo_list": "To-Do List ([ ])"
   }
 }

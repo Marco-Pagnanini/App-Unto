@@ -8,9 +8,10 @@ interface Props {
   activeNote: Note | null;
   onCreateNote: () => void;
   onOpenNote: (note: Note) => void;
+  onLogout: () => void;
 }
 
-export function Sidebar({ notes, viewState, activeNote, onCreateNote, onOpenNote }: Props) {
+export function Sidebar({ notes, viewState, activeNote, onCreateNote, onOpenNote, onLogout }: Props) {
   const { t } = useTranslation();
 
   return (
@@ -29,13 +30,13 @@ export function Sidebar({ notes, viewState, activeNote, onCreateNote, onOpenNote
       <div className="sidebar-section" style={{ flex: 1, overflowY: "auto" }}>
         <div className="sidebar-label">{t('sidebar.recent')}</div>
         
-        {notes.length === 0 && (
+        {(!notes || notes.length === 0) && (
           <div style={{ padding: "8px 12px", fontSize: "11px", color: "var(--text-tertiary)" }}>
             {t('sidebar.no_notes')}
           </div>
         )}
         
-        {notes.map(n => (
+        {notes?.map(n => (
           <NoteCard 
             key={n.id} 
             note={n} 
@@ -44,6 +45,18 @@ export function Sidebar({ notes, viewState, activeNote, onCreateNote, onOpenNote
           />
         ))}
       </div>
+
+      <div style={{ padding: "16px", borderTop: "1px solid var(--border-subtle)" }}>
+        <button 
+          className="btn btn-secondary" 
+          onClick={onLogout}
+          style={{ width: "100%", justifyContent: "center" }}
+        >
+          {t('app.logout_btn')}
+        </button>
+      </div>
     </div>
+
+    
   );
 }

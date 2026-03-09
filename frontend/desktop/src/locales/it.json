@@ -2,7 +2,13 @@
   "app": {
     "syncing": "Sincronizzazione in corso...",
     "select_note": "Seleziona o crea una nota",
-    "error_saving": "Si è verificato un errore durante il salvataggio."
+    "error_saving": "Si è verificato un errore durante il salvataggio.",
+    "logout_btn": "Esci",
+    "error_api_format": "L'API non ha ritornato un'array valido di note: ",
+    "error_loading": "Errore caricamento note: ",
+    "error_saving_log": "Errore salvataggio note: ",
+    "error_updating": "Errore aggiornamento note: ",
+    "error_deleting": "Errore eliminazione note: "
   },
   "sidebar": {
     "new_note": "+ Nuova Nota",
@@ -27,5 +33,41 @@
     "yes_delete": "Sì, Elimina",
     "error_update": "Impossibile salvare le modifiche. Il server non risponde.",
     "error_delete": "Impossibile eliminare la nota. Riprova più tardi."
+  },
+  "login": {
+    "title_1": "Pensieri, non cartelle",
+    "body_1": "App-Unto organizza le tue note attorno alle idee, non alle gerarchie. Scrivi liberamente, il resto viene da sé.",
+    "title_2": "Le idee si trovano",
+    "body_2": "Ogni nota può essere collegata ad un'altra. Costruisci una rete di conoscenza che cresce con te.",
+    "title_3": "Task, blocchi e struttura",
+    "body_3": "Checklist, codice, citazioni. Ogni tipo di contenuto ha il suo blocco, ogni blocco ha il suo posto.",
+    "title_4": "Il tuo spazio privato",
+    "body_4": "Self-hosted, offline-first, tuo. Nessuna cloud obbligatoria, nessun abbonamento. Solo le tue note.",
+    "server_url": "Server URL",
+    "server_url_placeholder": "es. 192.168.1.10:8080",
+    "api_token": "API Token",
+    "api_token_placeholder": "Inserisci la tua API Key segreta",
+    "connect_btn": "Connettiti al Server",
+    "connecting": "Connessione in corso...",
+    "error_401": "Token non valido o autorizzazione negata (Errore 401).",
+    "error_404": "URL non trovato (Errore 404). Verifica l'indirizzo del server.",    
+    "error_server": "Errore del server: ",
+    "error_network": "Il server non risponde. Controlla l'URL e assicurati che il backend sia acceso.",
+    "error_generic": "Si è verificato un errore imprevisto di connessione.",
+    "error_console": "Errore di connessione interrotta: "
+  },
+  "editor": {
+    "bold": "Grassetto (**testo**)",
+    "italic": "Corsivo (*testo*)",
+    "strike": "Barrato (~~testo~~)",
+    "h1": "Titolo 1 (# )",
+    "h2": "Titolo 2 (## )",
+    "h3": "Titolo 3 (### )",
+    "bullet_list": "Elenco puntato (- )",
+    "ordered_list": "Elenco numerato (1. )",
+    "blockquote": "Citazione / Nota (> )",
+    "code": "Codice inline (`testo`)",
+    "code_block": "Blocco di codice (```)",
+    "todo_list": "Lista Spuntabile ([ ])"
   }
 }

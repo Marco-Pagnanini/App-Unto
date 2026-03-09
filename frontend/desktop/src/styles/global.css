@@ -127,6 +127,45 @@ body { background: var(--bg-base); color: var(--text-primary); font-family: var(
   margin-bottom: 1em;
 }
 
+/* ============================================
+   EDITOR MARKDOWN STYLES (TIPTAP)
+   ============================================ */
+
+/* H3 - Titolo di livello 3 */
+.ProseMirror h3 {
+  font-family: var(--font-display);
+  font-size: 18px;
+  color: var(--text-primary);
+  margin-top: 24px;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+/* Nota con barra laterale (Blockquote) */
+.ProseMirror blockquote {
+  border-left: 4px solid var(--accent-warm); /* La famosa barra laterale colorata */
+  background-color: var(--bg-elevated); /* Sfondo leggermente staccato */
+  padding: 12px 16px;
+  margin: 16px 0;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  color: var(--text-secondary);
+}
+
+/* Rimuove il margine extra che i paragrafi creano dentro la nota */
+.ProseMirror blockquote p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Opzionale: facciamo in modo che il cursore "lampeggiante" nell'editor vuoto abbia la giusta altezza */
+.ProseMirror p.is-editor-empty:first-child::before {
+  color: var(--text-tertiary);
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
 /* --- Editor Toolbar --- */
 .toolbar-btn {
   width: 28px;
@@ -202,4 +241,156 @@ ul[data-type="taskList"] li input[type="checkbox"] {
   width: 18px;
   height: 18px;
   margin-top: 3px;
+}
+
+
+/* ============================================
+   NEW MODERN & SCATTERED LOGIN SCREEN
+   ============================================ */
+.login-screen-modern {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  background: var(--bg-base);
+  position: relative;
+  overflow: hidden; /* Evita scrollbar per gli elementi sparsi */
+}
+
+/* ============================
+   CONTENITORE BACKGROUND (SCATTERED)
+   ============================ */
+.login-background-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none; 
+}
+
+/* Base per ogni elemento sparso */
+.login-feature-scattered-item {
+  position: absolute;
+  max-width: 250px;
+  opacity: 0.4;
+  transition: opacity 0.3s, transform 0.3s;
+  pointer-events: auto; /* Riabilita il mouse solo sulle scritte */
+  cursor: default;
+}
+
+.login-feature-scattered-item:hover {
+  opacity: 1;
+  transform: scale(1.02); /* Effetto di leggero ingrandimento super moderno */
+}
+
+/* Quando si passa sopra al form, le scritte sfumano ancora di più */
+.login-screen-modern:has(.login-box-modern:hover) .login-feature-scattered-item {
+  opacity: 0.15;
+}
+
+.login-feature-scattered-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.login-feature-scattered-icon {
+  font-size: 16px;
+}
+
+.login-feature-scattered-title {
+  font-family: var(--font-display);
+  font-size: 16px;
+  color: var(--text-primary);
+  white-space: pre-line;
+}
+
+.login-feature-scattered-body {
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.4;
+  margin-left: 24px;
+}
+
+/* ============================
+   IL FORM CENTRALE (MODERNO)
+   ============================ */
+.login-box-modern {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  max-width: 360px; /* Contenuto e pulito */
+  
+  background: rgba(18, 18, 18, 0.85); /* Leggermente trasparente */
+  backdrop-filter: blur(8px); /* Effetto vetro sfocato */
+  -webkit-backdrop-filter: blur(8px);
+  
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  z-index: 10; /* Sopra alle scritte sparse */
+  
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+.login-logo {
+  font-family: var(--font-display);
+  font-size: 28px;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.login-logo span {
+  color: var(--accent-warm);
+}
+
+.login-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.login-field label {
+  font-size: 13px;
+  color: var(--text-secondary);
+  text-transform: none; /* Tolto l'uppercase! */
+  letter-spacing: normal;
+}
+
+/* Assicuriamoci che l'input non overflow */
+.login-field input.note-title-input {
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 14px;
+  padding: 8px 0;
+}
+
+/* Pulsante contenuto e centrato */
+.login-screen-modern button.btn-primary[type="submit"] {
+  padding: 12px;
+  margin-top: 8px;
+  justify-content: center;
+  align-self: center; /* Non allargare a tutta larghezza */
+  min-width: 180px;
+}
+
+/* Stile per il box degli errori */
+.login-error {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #ef4444; /* Rosso chiaro per visibilità sul dark theme */
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  text-align: center;
+  line-height: 1.4;
+  margin-top: -4px;
 }

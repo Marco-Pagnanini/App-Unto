@@ -1,8 +1,9 @@
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import TaskItem from '@tiptap/extension-task-item'; // <-- Importato
-import TaskList from '@tiptap/extension-task-list'; // <-- Importato
+import TaskItem from '@tiptap/extension-task-item'; 
+import TaskList from '@tiptap/extension-task-list'; 
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next'; // <-- Importata per i tooltip
 
 interface Props {
   content: string;
@@ -11,13 +12,14 @@ interface Props {
 }
 
 export function TipTapEditor({ content, onChange, disabled = false }: Props) {
+  const { t } = useTranslation(); // <-- Inizializzata la traduzione
+
   const editor = useEditor({
     extensions: [
       StarterKit,
-      // Aggiungiamo le due estensioni per le checkbox
       TaskList,
       TaskItem.configure({
-        nested: true, // Permette di avere task annidati!
+        nested: true, 
       }),
     ],
     content: content,
@@ -47,6 +49,7 @@ export function TipTapEditor({ content, onChange, disabled = false }: Props) {
           onClick={() => editor.chain().focus().toggleBold().run()} 
           disabled={disabled}
           className={`toolbar-btn ${editor.isActive('bold') ? 'active' : ''}`}
+          title={t('editor.bold')}
         >
           <b>B</b>
         </button>
@@ -55,6 +58,7 @@ export function TipTapEditor({ content, onChange, disabled = false }: Props) {
           onClick={() => editor.chain().focus().toggleItalic().run()} 
           disabled={disabled}
           className={`toolbar-btn ${editor.isActive('italic') ? 'active' : ''}`}
+          title={t('editor.italic')}
         >
           <em>I</em>
         </button>
@@ -63,6 +67,7 @@ export function TipTapEditor({ content, onChange, disabled = false }: Props) {
           onClick={() => editor.chain().focus().toggleStrike().run()} 
           disabled={disabled}
           className={`toolbar-btn ${editor.isActive('strike') ? 'active' : ''}`}
+          title={t('editor.strike')}
         >
           <s style={{ fontSize: "12px" }}>S</s>
         </button>
@@ -76,6 +81,7 @@ export function TipTapEditor({ content, onChange, disabled = false }: Props) {
           disabled={disabled}
           className={`toolbar-btn ${editor.isActive('heading', { level: 1 }) ? 'active' : ''}`}
           style={{ fontSize: "12px", fontWeight: "bold" }}
+          title={t('editor.h1')}
         >
           H1
         </button>
@@ -85,15 +91,30 @@ export function TipTapEditor({ content, onChange, disabled = false }: Props) {
           disabled={disabled}
           className={`toolbar-btn ${editor.isActive('heading', { level: 2 }) ? 'active' : ''}`}
           style={{ fontSize: "12px", fontWeight: "bold" }}
+          title={t('editor.h2')}
         >
           H2
         </button>
+        
+        {/* Aggiunto bottone H3 */}
+        <button 
+          type="button"
+          onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()} 
+          disabled={disabled}
+          className={`toolbar-btn ${editor.isActive('heading', { level: 3 }) ? 'active' : ''}`}
+          style={{ fontSize: "12px", fontWeight: "bold" }}
+          title={t('editor.h3')}
+        >
+          H3
+        </button>
+
         <button 
           type="button"
           onClick={() => editor.chain().focus().toggleCodeBlock().run()} 
           disabled={disabled}
           className={`toolbar-btn ${editor.isActive('codeBlock') ? 'active' : ''}`}
           style={{ fontSize: "11px" }}
+          title={t('editor.code_block')}
         >
           &lt;/&gt;
         </button>
@@ -107,19 +128,19 @@ export function TipTapEditor({ content, onChange, disabled = false }: Props) {
           disabled={disabled}
           className={`toolbar-btn ${editor.isActive('bulletList') ? 'active' : ''}`}
           style={{ fontSize: "14px" }}
+          title={t('editor.bullet_list')}
         >
           ≡
         </button>
         
-        {/*Task List */}
         <button 
           type="button"
           onClick={() => editor.chain().focus().toggleTaskList().run()} 
           disabled={disabled}
           className={`toolbar-btn ${editor.isActive('taskList') ? 'active' : ''}`}
           style={{ fontSize: "14px" }}
-          title="To-Do List"
-        >
+          title={t('editor.todo_list')}
+          >
           ☑
         </button>
 
@@ -129,6 +150,7 @@ export function TipTapEditor({ content, onChange, disabled = false }: Props) {
           disabled={disabled}
           className={`toolbar-btn ${editor.isActive('blockquote') ? 'active' : ''}`}
           style={{ fontSize: "14px", fontWeight: "bold" }}
+          title={t('editor.blockquote')}
         >
           "
         </button>

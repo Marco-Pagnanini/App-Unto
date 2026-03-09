@@ -1,12 +1,17 @@
 import axios from "axios";
 import { Note } from "../types/types";
 
-const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-    "Authorization": `Bearer ${import.meta.env.VITE_MOCK_TOKEN}`
-  }
+// Funzioni per leggere i dati salvati nel browser
+const getStoredUrl = () => localStorage.getItem("appunto_api_url") || "";
+const getStoredToken = () => localStorage.getItem("appunto_api_token") || "";
+
+const apiClient = axios.create();
+
+// "Intercettiamo" ogni chiamata prima che parta per iniettare l'URL e il Token aggiornati
+apiClient.interceptors.request.use((config) => {
+  config.baseURL = getStoredUrl();
+  config.headers.Authorization = `Bearer ${getStoredToken()}`;
+  return config;
 });
 
 export const API = {

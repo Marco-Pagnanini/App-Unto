@@ -5,30 +5,69 @@ import { Note } from "./types/types";
 import { Topbar } from "./components/Topbar";
 import { Sidebar } from "./components/Sidebar";
 import { NoteForm } from "./components/NoteForm";
+import { Login } from "./components/Login";
 import { NoteDetail } from "./components/NoteDetail";
 import "./styles/global.css";
 
 function App() {
   const { t } = useTranslation();
+  
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [notes, setNotes] = useState<Note[]>([]);
   const [viewState, setViewState] = useState<'empty' | 'creating' | 'viewing'>('empty');
   const [activeNote, setActiveNote] = useState<Note | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchNotes = async () => {
-      try {
-        setIsLoading(true);
-        const data = await API.getNotes();
+  const fetchNotes = async () => {
+    try {
+      setIsLoading(true);
+      const data = await API.getNotes();
+      
+      if (Array.isArray(data)) {
         setNotes(data);
-      } catch (error) {
-        console.error("Error loading notes:", error);
-      } finally {
-        setIsLoading(false);
+      } else if (data && typeof data === 'object' && Array.isArray((data as any).data)) {
+        setNotes((data as any).data);
+      } else {
+        console.warn(t('app.error_api_format'), data);
+        setNotes([]); 
       }
-    };
-    fetchNotes();
+
+    } catch (error) {
+      console.error(t('app.error_loading'), error);
+      localStorage.removeItem("appunto_api_token");
+      setIsAuthenticated(false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const storedUrl = localStorage.getItem("appunto_api_url");
+    const storedToken = localStorage.getItem("appunto_api_token");
+    
+    if (storedUrl && storedToken) {
+      setIsAuthenticated(true);
+      fetchNotes();
+    } else {
+      setIsLoading(false); 
+    }
   }, []);
+
+  const handleLogin = (url: string, token: string, displayUrl: string) => {
+    localStorage.setItem("appunto_api_url", url);
+    localStorage.setItem("appunto_api_token", token);
+    localStorage.setItem("appunto_display_url", displayUrl);
+    setIsAuthenticated(true);
+    fetchNotes(); 
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("appunto_api_token");
+    setIsAuthenticated(false);
+    setNotes([]);
+    setActiveNote(null);
+    setViewState('empty');
+  };
 
   const startCreating = () => {
     setViewState('creating');
@@ -47,7 +86,7 @@ function App() {
       setNotes(prev => [newNote, ...prev]);
       openNote(newNote); 
     } catch (e) {
-      console.error("Error saving note:", e);
+      console.error(t('app.error_saving_log'), e);
       alert(t('app.error_saving'));
     }
   };
@@ -59,7 +98,7 @@ function App() {
       setNotes(prev => prev.map(n => n.id === id ? updatedNote : n));
       setActiveNote(updatedNote);
     } catch (e) {
-      console.error("Error updating note:", e);
+      console.error(t('app.error_updating'), e);
       throw e; 
     }
   };
@@ -71,7 +110,7 @@ function App() {
       setActiveNote(null);
       setViewState('empty');
     } catch (e) {
-      console.error("Error deleting note:", e);
+      console.error(t('app.error_deleting'), e);
       throw e; 
     }
   };
@@ -86,6 +125,10 @@ function App() {
     );
   }
 
+  if (!isAuthenticated) {
+    return <Login onLogin={handleLogin} />;
+  }
+
   return (
     <div className="app-shell">
       <Topbar />
@@ -95,6 +138,7 @@ function App() {
         activeNote={activeNote}
         onCreateNote={startCreating}
         onOpenNote={openNote}
+        onLogout={handleLogout}
       />
       <div className="editor-area">
         {viewState === 'creating' && (
