@@ -1,6 +1,7 @@
 import { colors, fontFamily, fontSize, lineHeight, radius, shadows, spacing } from '@/theme';
 import React from 'react';
 import { Pressable, StyleSheet, Text, ViewStyle } from 'react-native';
+import { MarkdownView } from './MarkdownView';
 
 interface NoteCardProps {
     title: string;
@@ -26,9 +27,7 @@ export function NoteCard({ title, preview, date, featured = false, onPress, styl
                 {title}
             </Text>
             {preview ? (
-                <Text style={styles.preview} numberOfLines={2}>
-                    {preview}
-                </Text>
+                <MarkdownView>{preview.split('\n')[0] || ''}</MarkdownView>
             ) : null}
             {date ? (
                 <Text style={styles.date}>{date}</Text>

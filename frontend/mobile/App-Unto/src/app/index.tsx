@@ -159,8 +159,8 @@ export default function Index() {
                     storage.get(STORAGE_KEYS.API_KEY),
                 ]);
                 if (ip && key) {
-                    router.replace("/(tabs)");
-                    return;
+                    //router.replace("/(tabs)");
+                    //return;
                 }
             } finally {
                 setChecking(false);
