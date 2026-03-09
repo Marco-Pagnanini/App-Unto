@@ -135,9 +135,12 @@ export default function VisualizationNote() {
                     </Pressable>
 
                     <Text style={styles.headerMeta}>
-                        {note ? new Date(note.updatedAt).toLocaleDateString('it-IT', {
-                            day: '2-digit', month: 'short', year: 'numeric',
-                        }) : ''}
+                        {note ? (() => {
+                            const d = new Date(note.updatedAt);
+                            return isNaN(d.getTime()) ? '' : d.toLocaleDateString('it-IT', {
+                                day: '2-digit', month: 'short', year: 'numeric',
+                            });
+                        })() : ''}
                     </Text>
 
                     {!editMode ? (
@@ -307,12 +310,12 @@ const styles = StyleSheet.create({
         marginBottom: spacing[5],
     },
 
-    // Contenuto edit
+    // Contenuto edit — mono rende la sintassi markdown leggibile
     contentInput: {
-        fontFamily: fontFamily.body,
-        fontSize: fontSize.base,
+        fontFamily: fontFamily.mono,
+        fontSize: fontSize.sm,
         color: colors.textSecondary,
-        lineHeight: fontSize.base * lineHeight.relaxed,
+        lineHeight: fontSize.sm * lineHeight.relaxed,
         minHeight: 400,
         padding: 0,
     },

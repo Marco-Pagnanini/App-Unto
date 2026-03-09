@@ -239,12 +239,12 @@ const styles = StyleSheet.create({
         marginBottom: spacing[5],
     },
 
-    // Content input — body mono per sentire la sintassi markdown
+    // Contenuto edit — mono rende la sintassi markdown leggibile
     contentInput: {
-        fontFamily: fontFamily.body,
-        fontSize: fontSize.base,
+        fontFamily: fontFamily.mono,
+        fontSize: fontSize.sm,
         color: colors.textSecondary,
-        lineHeight: fontSize.base * lineHeight.relaxed,
+        lineHeight: fontSize.sm * lineHeight.relaxed,
         minHeight: 400,
         padding: 0,
     },
