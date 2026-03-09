@@ -1,5 +1,6 @@
 import api from '@/api/api';
 import { MarkdownView } from '@/components/ui';
+import { MarkdownEditor } from '@/components/ui/MarkdownEditor';
 import { colors, fontFamily, fontSize, lineHeight, radius, spacing } from '@/theme';
 import { Note } from '@/types/note';
 import { AxiosResponse } from 'axios';
@@ -134,9 +135,12 @@ export default function VisualizationNote() {
                     </Pressable>
 
                     <Text style={styles.headerMeta}>
-                        {note ? new Date(note.updatedAt).toLocaleDateString('it-IT', {
-                            day: '2-digit', month: 'short', year: 'numeric',
-                        }) : ''}
+                        {note ? (() => {
+                            const d = new Date(note.updatedAt);
+                            return isNaN(d.getTime()) ? '' : d.toLocaleDateString('it-IT', {
+                                day: '2-digit', month: 'short', year: 'numeric',
+                            });
+                        })() : ''}
                     </Text>
 
                     {!editMode ? (
@@ -182,21 +186,14 @@ export default function VisualizationNote() {
 
                     <View style={styles.divider} />
 
-                    {/* Corpo: Markdown in read, TextInput in edit */}
+                    {/* Corpo: Markdown in read, editor in edit */}
                     {editMode ? (
-                        <TextInput
-                            ref={contentRef}
-                            style={styles.contentInput}
+                        <MarkdownEditor
+                            inputRef={contentRef}
                             value={content}
                             onChangeText={setContent}
-                            placeholder="Contenuto della nota..."
-                            placeholderTextColor={colors.textDisabled}
-                            multiline
-                            textAlignVertical="top"
-                            autoCorrect={false}
-                            autoCapitalize="sentences"
-                            scrollEnabled={false}
                             onSelectionChange={(e) => setSelection(e.nativeEvent.selection)}
+                            placeholder="Contenuto della nota..."
                             autoFocus
                         />
                     ) : (
@@ -313,12 +310,12 @@ const styles = StyleSheet.create({
         marginBottom: spacing[5],
     },
 
-    // Contenuto edit
+    // Contenuto edit — mono rende la sintassi markdown leggibile
     contentInput: {
-        fontFamily: fontFamily.body,
-        fontSize: fontSize.base,
+        fontFamily: fontFamily.mono,
+        fontSize: fontSize.sm,
         color: colors.textSecondary,
-        lineHeight: fontSize.base * lineHeight.relaxed,
+        lineHeight: fontSize.sm * lineHeight.relaxed,
         minHeight: 400,
         padding: 0,
     },

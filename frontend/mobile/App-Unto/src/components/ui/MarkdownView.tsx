@@ -3,22 +3,18 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 // ─── Inline parser: **bold**, _italic_, `code` ────────────────────────────────
+// I testi plain NON hanno stile proprio: ereditano colore e font dal parent <Text>
 function parseInline(raw: string, keyPrefix: string): React.ReactNode {
     const parts: React.ReactNode[] = [];
-    // Ordine importante: bold prima di italic
     const regex = /(\*\*(.+?)\*\*|__(.+?)__|_(.+?)_|\*(.+?)\*|`(.+?)`)/g;
     let last = 0;
     let chunk = 0;
     let match: RegExpExecArray | null;
 
     while ((match = regex.exec(raw)) !== null) {
-        // testo normale prima del match
         if (match.index > last) {
-            parts.push(
-                <Text key={`${keyPrefix}-n${chunk++}`} style={s.body}>
-                    {raw.slice(last, match.index)}
-                </Text>,
-            );
+            // plain text — nessuno stile, eredita dal parent
+            parts.push(raw.slice(last, match.index));
         }
         const [, , bold1, bold2, em1, em2, code] = match;
 
@@ -31,11 +27,11 @@ function parseInline(raw: string, keyPrefix: string): React.ReactNode {
         }
         last = match.index + match[0].length;
     }
-    // testo rimanente
     if (last < raw.length) {
-        parts.push(<Text key={`${keyPrefix}-n${chunk++}`} style={s.body}>{raw.slice(last)}</Text>);
+        parts.push(raw.slice(last));
     }
-    return parts.length ? parts : <Text style={s.body}>{raw}</Text>;
+    // Se nessuna formattazione trovata, ritorna la stringa diretta
+    return parts.length ? parts : raw;
 }
 
 // ─── Componente principale ────────────────────────────────────────────────────
@@ -76,13 +72,13 @@ export function MarkdownView({ children }: MarkdownViewProps) {
             continue;
         }
 
-        // ── Headings ──────────────────────────────────────────────────────────
-        if (line.startsWith('### ')) {
-            nodes.push(<Text key={key} style={s.h3}>{parseInline(line.slice(4), key)}</Text>);
-        } else if (line.startsWith('## ')) {
-            nodes.push(<Text key={key} style={s.h2}>{parseInline(line.slice(3), key)}</Text>);
-        } else if (line.startsWith('# ')) {
-            nodes.push(<Text key={key} style={s.h1}>{parseInline(line.slice(2), key)}</Text>);
+        // ── Headings — accetta sia "# Testo" che "#Testo" ────────────────────
+        if (/^#{3}\s?/.test(line)) {
+            nodes.push(<Text key={key} style={s.h3}>{parseInline(line.replace(/^#{3}\s?/, ''), key)}</Text>);
+        } else if (/^#{2}\s?/.test(line)) {
+            nodes.push(<Text key={key} style={s.h2}>{parseInline(line.replace(/^#{2}\s?/, ''), key)}</Text>);
+        } else if (/^#{1}\s?/.test(line)) {
+            nodes.push(<Text key={key} style={s.h1}>{parseInline(line.replace(/^#{1}\s?/, ''), key)}</Text>);
 
             // ── HR ────────────────────────────────────────────────────────────────
         } else if (/^[-*_]{3,}$/.test(line.trim())) {
