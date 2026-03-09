@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"github.com/google/uuid"
@@ -23,6 +24,9 @@ func main() {
 		if err := setup.Run(); err != nil {
 			log.Fatalf("setup failed: %v", err)
 		}
+
+		fmt.Println("✅ Configuration complete! File .env successfully created.")
+        os.Exit(0)
 	}
 
 	// 2. Carica le variabili dal file .env nel processo corrente
